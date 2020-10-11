@@ -26,8 +26,23 @@ def read_urls(filename):
     extracting the hostname from the filename itself, sorting
     alphabetically in increasing order, and screening out duplicates.
     """
-    # +++your code here+++
-    pass
+    main_list = []
+    last_list = []
+    hostname = filename[-15:]
+    print(hostname)
+    # animal_p = r"GET (\S*puzzle\S*)"
+    # place = r"GET (\S*puzzle/\w-\w{4}-\w{4}\S*)"
+    with open(filename) as f:
+        string = f.read()
+        match = r"GET (\S*puzzle\S*)"
+        matches = re.findall(match, string)
+        for i in matches:
+            if i not in main_list and "puzzle" in i:
+                main_list.append(i)
+        main_list.sort(key=lambda x: x[-8:-4])
+        for i in main_list:
+            last_list. append("http://" + hostname + i)
+    return last_list
 
 
 def download_images(img_urls, dest_dir):
@@ -38,13 +53,27 @@ def download_images(img_urls, dest_dir):
     to show each local image file.
     Creates the directory if necessary.
     """
-    # +++your code here+++
-    pass
+    pic_list = []
+    # urllib.request.urlretrieve(img_urls[i], new_link)
+    # print("Retrieving" + new_name + "...")
+    # make directory if doesn't exist'
+    if not os.path.exists(dest_dir):
+        os.mkdir(dest_dir)
+    for i, value in enumerate(img_urls):
+        file_name = dest_dir + "/img" + str(i) + ".jpg"
+        urllib.request.urlretrieve(value, file_name)
+        pic_list.append("img" + str(i) + ".jpg")
+    with open(dest_dir + '/index.html', "w") as f:
+        f.write('<html><body>\n')
+        for pic in pic_list:
+            f.write(f"<img src='{pic}'>")
+        f.write('\n</body>\n</html>')
 
 
 def create_parser():
     """Creates an argument parser object."""
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        description="Extract and add to pic dir.")
     parser.add_argument('-d', '--todir',
                         help='destination directory for downloaded images')
     parser.add_argument('logfile', help='apache logfile to extract urls from')
@@ -66,8 +95,8 @@ def main(args):
 
     if parsed_args.todir:
         download_images(img_urls, parsed_args.todir)
-    else:
-        print('\n'.join(img_urls))
+    # else:
+    #     print('\n'.join(img_urls))
 
 
 if __name__ == '__main__':
